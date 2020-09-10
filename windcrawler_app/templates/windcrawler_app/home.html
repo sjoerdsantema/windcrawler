@@ -1,0 +1,154 @@
+{% extends 'windcrawler_app/base.html'%}
+
+{% block content %}
+{% for locatie in spotdatalist|dictsortreversed:"Windsnelheid" %}
+<div class="container" style="padding-top: 35px">
+    <b>{{ locatie.Locatie }}:</b>
+    {% if locatie.Windsnelheid > 30 %} 
+        {{ locatie.Windsnelheid }} - {{ locatie.Windstoten }} knopen
+        {% if locatie.Windrichting %}
+          | {{ locatie.Windrichting }}
+        {% endif %}
+        | pro's only!
+    {% endif %} 
+    {% if locatie.Windsnelheid <= 30 and locatie.Windsnelheid > 15 %} 
+        {{ locatie.Windsnelheid }} - {{ locatie.Windstoten }} knopen 
+        {% if locatie.Windrichting %}
+        | {{ locatie.Windrichting }}
+        {% endif %}
+        | wind!
+    {% endif %} 
+    {% if locatie.Windsnelheid <= 15 %} 
+        {{ locatie.Windsnelheid }} - {{ locatie.Windstoten }} knopen 
+          {% if locatie.Windrichting %}
+          | {{ locatie.Windrichting }}
+          {% endif %}
+          | weinig wind 
+    {% endif %} 
+    
+    <a data-toggle="collapse" href="#{{ locatie.Handle }}" role="button" aria-expanded="false" aria-controls="{{ locatie.Handle }}">  
+        <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-plus-square" fill="black" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+            <path fill-rule="evenodd" d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+          </svg>
+        {% if locatie.Verschil > 10 %} 
+        <span class="badge badge-danger">+{{ locatie.Verschil }} knpn vlagen</span> 
+        {% endif %} 
+    <div class="progress">
+        {% if locatie.Windsnelheid >= 30 %}
+        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ locatie.Windsnelheid }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        {% endif %} 
+        {% if locatie.Windsnelheid < 30 and locatie.Windsnelheid > 20 %} 
+        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ locatie.Windsnelheid }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        {% endif %} 
+        {% if locatie.Windsnelheid > 15 and locatie.Windsnelheid <= 20 %} 
+        <div class="progress-bar bg-success" role="progressbar" style="width: {{ locatie.Windsnelheid }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        {% endif %}
+        {% if locatie.Windsnelheid > 0 and locatie.Windsnelheid <= 15 %} 
+        <div class="progress-bar" role="progressbar" style="width: {{ locatie.Windsnelheid }}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        {% endif %}
+        </div>
+    </div></a>
+<div class="collapse" id="{{ locatie.Handle }}">
+    <div class="container" style="padding-left: 15px; padding-top: 25px">
+        <div class="row">
+            <div class="col col-lg-4">
+                <p class="card-text">
+                {% for key, value in locatie.items %}
+                    {% if key == "Google Maps" %}
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-arrow-down-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
+                        </svg> : <a href="{{ value }}" target="blank"><b>Navigatie</b></a>   
+                    {% elif key == "Handle" %}
+                    {% elif key == "Locatie" %}
+                    {% elif key == "Windhistorie" %}
+                    {% elif key == "data" %} 
+                    {% else %}
+                        <b>{{ key }}</b> : {{ value }} <br>
+                    {% endif %}
+                {% endfor %}
+                </p>
+            </div>
+            <div class="col" style="padding-top: 20px">
+                {% for key, value in locatie.items %}
+                {% if key == "Windhistorie" %}
+                <canvas id="{{ locatie.Handle }}-1"></canvas>  
+                {% endif %}
+                {% endfor %}             
+                <script>
+                new Chart(document.getElementById("{{ locatie.Handle }}-1"), {
+                    type: 'bar',
+                    data: {
+                      labels: [{% for key, value in locatie.items %}
+                            {% if key == "data" %} 
+                            {% for element in value.0 %}
+                            "{{ element }}", 
+                            {% endfor %}
+                            {% endif %}
+                            {% endfor %}],
+                      datasets: [{
+                          label: "Historie gemiddelde wind",
+                          type: "line",
+                          borderColor: "#ffffff",
+                          backgroundColor: "#e8e8e8",
+                          data: [{% for key, value in locatie.items %}
+                            {% if key == "data" %} 
+                            {% for element in value.1 %}
+                            {{ element }}, 
+                            {% endfor %}
+                            {% endif %}
+                            {% endfor %}],
+                          fill: true,
+                          offset: true,
+                          pointRadius: 0
+                        }, {
+                          label: "Historie windstoten",
+                          type: "line",
+                          borderColor: "#ffffff",
+                          backgroundColor: "#f22800",
+                          data: [{% for key, value in locatie.items %}
+                            {% if key == "data" %} 
+                            {% for element in value.2 %}
+                            {{ element }}, 
+                            {% endfor %}
+                            {% endif %}
+                            {% endfor %}],
+                          fill: true,
+                          pointRadius: 0
+                        }
+                      ]
+                    },
+                    options: {
+                      title: {
+                        display: false,
+                        text: 'Wind + Windstoten'
+                      },
+                      legend: { 
+                        display: true, 
+                        position: "bottom"
+                        },
+                      scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                      }
+                    }
+                });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% empty %}
+    <b>Geen spots geselecteerd</b>
+{% endfor %}
+<br>
+<div class="container" style="padding-top: 30px">
+    {% for weatherreport in weatherreport %}
+    <b>{{ weatherreport.title }}</b><p>{{ weatherreport.text|safe }} </p><small><b>bron: {{ weatherreport.source }}</b></small>
+</div>
+{% endfor %}
+{% endblock %}

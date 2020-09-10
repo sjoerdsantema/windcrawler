@@ -1,0 +1,1 @@
+gcloud builds submit --tag eu.gcr.io/infinite-aura-289015/windcrawler /Users/ssantema/Desktop/windcrawler/ --project infinite-aura-289015

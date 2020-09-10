@@ -1,0 +1,7 @@
+*.sqlite3
+key.json
+production.py
+*.DS_Store
+.vscode
+.mypy_cache
+*.pyc
