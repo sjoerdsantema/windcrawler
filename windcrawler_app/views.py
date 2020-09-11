@@ -5,8 +5,19 @@ from .renderdata import Renderdata
 from .renderhistoricaldata import RenderHistoricalData
 from .models import Wooi, Sources, HistoricalData
 from .get_api_key import GetApiKey
+from .collect_data_on_trigger import CollectData 
 
 HOME_PAGE_MSG = getattr(settings, "HOME_PAGE_MSG", "Missing Message")
+
+def trigger(request):
+    trigger = CollectData()
+    locaties = Wooi.objects.filter(active=True, historical_available=True)
+    for locatie in locaties:
+        spot = locatie.title
+        trigger.collect_data(spot)
+        print(f"collecting data for {spot}")
+        
+    return render(request, 'windcrawler_app/trigger.html')
 
 def home(request):
     spotdatalist = []

@@ -52,7 +52,7 @@
 <div class="collapse" id="{{ locatie.Handle }}">
     <div class="container" style="padding-left: 15px; padding-top: 25px">
         <div class="row">
-            <div class="col col-lg-4">
+            <div class="col-5">
                 <p class="card-text">
                 {% for key, value in locatie.items %}
                     {% if key == "Google Maps" %}
@@ -130,7 +130,15 @@
                       scales: {
                         yAxes: [{
                             ticks: {
-                                beginAtZero: true
+                                beginAtZero: true,
+                                suggestedMax: 40,
+                                stepSize: 5
+                            }
+                        }],
+                        xAxes: [{
+                            ticks: {
+                                type: 'time',
+                                distribution: 'series'
                             }
                         }]
                       }

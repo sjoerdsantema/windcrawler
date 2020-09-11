@@ -3,7 +3,6 @@ import os
 # all base settings for Django
 from .base import *
 
-HOME_PAGE_MSG = "This is local"
 print("using local")
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
